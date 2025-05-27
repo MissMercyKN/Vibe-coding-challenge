@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Loyalty Rewards App</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/supabase.min.js"></script>
+</head>
+<body>
+    <h1>Customer Loyalty Reward System</h1>
+    
+    <h2>Customer Check-In</h2>
+    <input type="text" id="phoneNumber" placeholder="Enter phone number" />
+    <br />
+<button id="checkInButton" onclick="checkIn()">Check In</button>
+    <div id="result"></div>
+
+    <!-- Reward Popup -->
+    <div id="rewardPopup" style="display: none;">
+        <h3>🎁 Congrats!</h3>
+        <p>Client has earned a FREE service for their 10th visit!</p>
+        <button onclick="closePopup()">OK</button>
+    </div>
+
+    <script>
+            // Initialize Supabase AFTER the page loads
+            console.log("Initializing Supabase...");
+            const supabaseUrl = 'https://dkwfpxycknnglrvexseo.supabase.co';
+            const supabaseKey = 'eyJhbGciOiJI...your_key_here';
+            const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+            // Attach event listener correctly
+            document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById("checkInButton").addEventListener("click", checkIn);
+
+            async function checkIn() {
+                console.log("Check-In button clicked!");
+                const phone = document.getElementById('phoneNumber').value.trim();
+
+                if (!phone) {
+                    document.getElementById('result').innerText = "⚠️ Please enter a phone number.";
+                    return;
+                }
+
+                document.getElementById('result').innerText = `Checking in ${phone}...`;
+
+                try {
+                    let { data, error } = await supabase
+                        .from('customers')
+                        .select('*')
+                        .eq('phone_number', phone)
+                        .single();
+
+                    if (!data) {
+                        // New customer, insert into DB
+                        const { data: newData, error: insertError } = await supabase
+                            .from('customers')
+                            .insert([{ phone_number: phone, visit_count: 1 }])
+                            .select()
+                            .single();
+                        
+                        document.getElementById('result').innerText =
+                            `Welcome! This is your 1st visit. 🎉`;
+
+                        if (insertError) throw insertError;
+                    } else {
+                        // Existing customer, update visit count
+                        const newCount = data.visit_count + 1;
+                        const { error: updateError } = await supabase
+                            .from('customers')
+                            .update({ visit_count: newCount })
+                            .eq('phone_number', phone);
+
+                        document.getElementById('result').innerText =
+                            `Welcome back! This is the client's ${newCount} visit. 🏆`;
+
+                        if (newCount === 10) {
+                            document.getElementById('rewardPopup').style.display = 'block';
+                            console.log("🎁 Reward Popup Triggered!");
+                        }
+
+                        if (updateError) throw updateError;
+                    }
+                } catch (err) {
+                    console.error("❌ Error checking in:", err.message);
+                    document.getElementById('result').innerText = "❌ Error processing request.";
+                }
+            }
+
+            window.closePopup = function() {
+                document.getElementById('rewardPopup').style.display = 'none';
+            };
+        });
+    </script>
+</body>
+</html>

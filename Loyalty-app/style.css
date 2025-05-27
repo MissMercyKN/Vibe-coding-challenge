@@ -1,0 +1,45 @@
+body {
+font-family: Arial, sans-serif;
+text-align: center;
+color: aliceblue;
+padding: 50px;
+background-image: url("grunge-style-interior-with-metal-plate-floor.jpg");
+background-size: cover;
+background-position: center;
+background-repeat: no-repeat;
+
+}
+
+#rewardPopup {
+      display: none;
+      position: fixed;
+      top: 30%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: #f7f7f7;
+      padding: 30px;
+      border: 2px solid #4CAF50;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+      z-index: 1000;
+    }
+#closePopup {
+      margin-top: 10px;
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+input, button {
+      padding: 10px;
+      margin: 10px;
+      width: 300px;
+      font-size: 16px;
+}
+#result {
+     margin-top: 20px;
+     font-weight: bold;
+}
